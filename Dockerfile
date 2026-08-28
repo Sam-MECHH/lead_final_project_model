@@ -1,5 +1,5 @@
 # 1. Base Image
-FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
 
 WORKDIR /app
 
@@ -23,5 +23,5 @@ RUN echo "===== CHECKING REQUIREMENTS =====" && \
 COPY . .
 
 # 6. Runtime Config
-ENV PYTHONPATH=/src
+ENV PYTHONPATH=/app/src
 CMD ["python", "src/train.py"]
