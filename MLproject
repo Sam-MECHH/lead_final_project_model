@@ -3,6 +3,9 @@ name: coherence_medical_checker
 # 1. Use Docker Environment
 docker_env:
   image: smechh/lead-final-proj-ml-workflow:latest
+  # Grant GPU access, shared memory, and local host storage mount
+  volumes: ["/home/ubuntu/data:/app/data"]
+  run_args: ["--gpus", "all", "--ipc=host", "--net=host"]
 
 entry_points:
   main:

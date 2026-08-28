@@ -3,6 +3,9 @@ FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
 
 WORKDIR /app
 
+# Create data directory inside container
+RUN mkdir -p /app/data
+
 # 2. System Dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
