@@ -23,5 +23,5 @@ RUN echo "===== CHECKING REQUIREMENTS =====" && \
 COPY . .
 
 # 6. Runtime Config
-ENV PYTHONPATH=/app
-CMD ["python", "app/train.py"]
+ENV PYTHONPATH=/src
+CMD ["python", "src/train.py"]
