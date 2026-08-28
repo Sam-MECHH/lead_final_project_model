@@ -11,4 +11,4 @@ entry_points:
       experiment_name: {type: string, default: "lead_demo_training"}
     
     # 2. The Command
-    command: "python app/train.py --n_epochs {n_epochs} --experiment_name {experiment_name}"
+    command: "python src/train.py --n_epochs {n_epochs} --experiment_name {experiment_name}"
