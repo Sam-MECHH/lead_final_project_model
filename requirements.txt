@@ -2,7 +2,7 @@
 mlflow
 
 # Health-Multimodal (Microsoft BioViL-T)
-biomed-health-multimodal
+hi-ml-multimodal
 
 # Data Science Stack
 pandas
