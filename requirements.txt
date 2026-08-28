@@ -1,0 +1,17 @@
+# Core MLOps Framework
+mlflow
+
+# Health-Multimodal (Microsoft BioViL-T)
+biomed-health-multimodal
+
+# Data Science Stack
+pandas
+numpy
+tqdm
+
+# Vision & Transformers
+Pillow
+transformers
+
+# Testing
+pytest
