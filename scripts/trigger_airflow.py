@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 AIRFLOW_URL = os.getenv("AIRFLOW_URL") # e.g., https://xyz.ngrok-free.app
 USERNAME = os.getenv("AIRFLOW_USER")
 PASSWORD = os.getenv("AIRFLOW_PASS")
-DAG_ID = os.getenv("DAG_ID", "github_ec2_ml_training")
+DAG_ID = os.getenv("DAG_ID", "ec2_ml_training")
 GIT_HASH = sys.argv[1] if len(sys.argv) > 1 else "main"
 
 if not AIRFLOW_URL:
