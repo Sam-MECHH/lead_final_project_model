@@ -375,7 +375,7 @@ if __name__ == "__main__":
     # Train the model
     # Set tracking URI to Hugging Face server
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
-    mlflow.set_experiment(os.getenv("MLFLOW_EXPERIMENT_NAME"))
+    mlflow.set_experiment("lead_demo_training")
     with mlflow.start_run():
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
