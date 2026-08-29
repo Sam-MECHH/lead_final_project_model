@@ -4,6 +4,7 @@ import os
 from tqdm import tqdm
 from pathlib import Path
 import copy
+import argparse
 
 from sklearn.model_selection import train_test_split
 import torch
@@ -331,6 +332,7 @@ def cross_attention_train_biovil(model, train_loader, val_loader, criterion, opt
     return history  # Return training history
 
 if __name__ == "__main__":
+    
     # Parse Model Hyperparameters
     parser = argparse.ArgumentParser()
     parser.add_argument("--n_epochs", type=int, default=2)
