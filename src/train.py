@@ -352,20 +352,14 @@ if __name__ == "__main__":
 
     # Construct datasets and dataloaders for train and test
     print("Loading encoded tesnors")
-    cross_att_X_train_img = np.array(load_saved_images(chunks_total_train, type="train"))
-    cross_att_X_train_txt = np.array(load_saved_texts(chunks_total_train, type="train"))
-    cross_att_y_train = y_train.to_numpy()
-    cross_att_X_train_txt_tensor = torch.from_numpy(cross_att_X_train_txt).float()
-    cross_att_X_train_img_tensor = torch.from_numpy(cross_att_X_train_img).float()
-    cross_att_y_train_tensor = torch.from_numpy(cross_att_y_train).float()
+    cross_att_X_train_img_tensor = torch.stack(load_saved_images(chunks_total_train, type="train")).float()
+    cross_att_X_train_txt_tensor = torch.stack(load_saved_texts(chunks_total_train, type="train")).float()
+    cross_att_y_train_tensor = torch.tensor(y_train.to_numpy(), dtype=torch.float32)
     cross_att_train_dataset = TensorDataset(cross_att_X_train_img_tensor, cross_att_X_train_txt_tensor, cross_att_y_train_tensor)
 
-    cross_att_X_test_img = np.array(load_saved_images(chunks_total_test, type="test"))
-    cross_att_X_test_txt = np.array(load_saved_texts(chunks_total_test, type="test"))
-    cross_att_y_test = y_test.to_numpy()
-    cross_att_X_test_txt_tensor = torch.from_numpy(cross_att_X_test_txt).float()
-    cross_att_X_test_img_tensor = torch.from_numpy(cross_att_X_test_img).float()
-    cross_att_y_test_tensor = torch.from_numpy(cross_att_y_test).float()
+    cross_att_X_test_img_tensor = torch.stack(load_saved_images(chunks_total_test, type="test")).float()
+    cross_att_X_test_txt_tensor = torch.stack(load_saved_texts(chunks_total_test, type="test")).float()
+    cross_att_y_test_tensor = torch.tensor(y_test.to_numpy(), dtype=torch.float32)
     cross_att_test_dataset = TensorDataset(cross_att_X_test_img_tensor, cross_att_X_test_txt_tensor, cross_att_y_test_tensor)
 
     cross_att_train_loader = DataLoader(cross_att_train_dataset, batch_size=64, shuffle=True)
@@ -408,5 +402,5 @@ if __name__ == "__main__":
             epochs=10
         )
 
-        # Right before exiting the context manager
-        mlflow.pytorch.log_model(cross_att_model, name="biovil_t_lead_demo")
+        # Log the best model into MLflow models
+        mlflow.pytorch.log_model(pytorch_model=cross_att_model, artifact_path="biovil_t_lead_demo")
