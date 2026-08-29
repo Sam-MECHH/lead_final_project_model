@@ -333,7 +333,7 @@ def cross_attention_train_biovil(model, train_loader, val_loader, criterion, opt
 if __name__ == "__main__":
     # Load the dataset
     dataset_sample = pd.read_csv("./data/chexpert_plus_dataset_sample.csv", index_col=0)
-    dataset_sample = dataset_sample.loc[:9000, :]
+    dataset_sample = dataset_sample.loc[0:1000, :]
     # Split the dataset into train and test sets
     X = dataset_sample.drop(columns=["target"])
     y = dataset_sample["target"]
