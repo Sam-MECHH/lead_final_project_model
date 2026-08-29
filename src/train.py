@@ -371,6 +371,7 @@ if __name__ == "__main__":
     cross_att_train_loader = DataLoader(cross_att_train_dataset, batch_size=64, shuffle=True)
     cross_att_val_loader = DataLoader(cross_att_test_dataset, batch_size=64, shuffle=False)
 
+    print("Training start")
     # Train the model
     # Set tracking URI to Hugging Face server
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
