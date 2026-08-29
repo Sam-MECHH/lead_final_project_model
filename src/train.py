@@ -331,6 +331,12 @@ def cross_attention_train_biovil(model, train_loader, val_loader, criterion, opt
     return history  # Return training history
 
 if __name__ == "__main__":
+    # Parse Model Hyperparameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--n_epochs", type=int, default=2)
+    parser.add_argument("--experiment_name", type=str, default="lead_demo_training")
+    args = parser.parse_args()
+
     # Load the dataset
     dataset_sample = pd.read_csv("./data/chexpert_plus_dataset_sample.csv", index_col=0)
     dataset_sample = dataset_sample.loc[0:1000, :]
@@ -369,7 +375,7 @@ if __name__ == "__main__":
     # Train the model
     # Set tracking URI to Hugging Face server
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
-    mlflow.set_experiment(os.getenv("MLFLOW_EXPERIMENT_NAME"))
+    mlflow.set_experiment(args.experiment_name)
     with mlflow.start_run():
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -386,7 +392,7 @@ if __name__ == "__main__":
         mlflow.log_params({
             "lr": 1e-5,
             "weight_decay": 1e-2,
-            "epochs": 10,
+            "epochs": args.n_epochs,
             "scheduler": "ReduceLROnPlateau"
         })
 
@@ -399,7 +405,7 @@ if __name__ == "__main__":
             criterion=criterion, 
             optimizer=optimizer, 
             scheduler = scheduler,
-            epochs=10
+            epochs=args.n_epochs
         )
 
         # Log the best model into MLflow models
