@@ -369,7 +369,7 @@ if __name__ == "__main__":
     # Train the model
     # Set tracking URI to Hugging Face server
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
-    mlflow.set_experiment("lead_demo_training")
+    mlflow.set_experiment(os.getenv("MLFLOW_EXPERIMENT_NAME"))
     with mlflow.start_run():
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -403,4 +403,4 @@ if __name__ == "__main__":
         )
 
         # Log the best model into MLflow models
-        mlflow.pytorch.log_model(pytorch_model=cross_att_model, artifact_path="biovil_t_lead_demo")
+        mlflow.pytorch.log_model(cross_att_model, name="biovil_t_lead_demo")

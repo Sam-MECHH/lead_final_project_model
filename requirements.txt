@@ -1,5 +1,5 @@
 # Core MLOps Framework
-mlflow
+mlflow==3.5.0
 
 # Health-Multimodal (Microsoft BioViL-T)
 hi-ml-multimodal
