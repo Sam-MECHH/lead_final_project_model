@@ -5,6 +5,7 @@ from tqdm import tqdm
 from pathlib import Path
 import copy
 
+from sklearn.model_selection import train_test_split
 import torch
 from PIL import Image   
 from transformers import AutoModel, AutoTokenizer

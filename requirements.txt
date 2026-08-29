@@ -5,6 +5,7 @@ mlflow
 hi-ml-multimodal
 
 # Data Science Stack
+scikit-learn
 pandas
 numpy
 tqdm
