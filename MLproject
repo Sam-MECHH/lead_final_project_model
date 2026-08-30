@@ -10,7 +10,7 @@ docker_env:
 entry_points:
   main:
     parameters:
-      n_epochs: {type: int, default: 6}
+      n_epochs: {type: int, default: 50}
       experiment_name: {type: string, default: "lead_demo_training"}
     
     # 2. The Command
