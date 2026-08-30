@@ -180,8 +180,8 @@ def generate_encoded_tensors(x_set, type="train", chunk_size=2000):
         text_sequence = get_text_embeddings(report, tokenizer, text_model)
 
         # Store directly in memory buffers keyed by sample index
-        img_buffer[idx] = img_patches.detach().to(torch.float32).cpu()
-        text_buffer[idx] = text_sequence.detach().to(torch.float32).cpu()    
+        img_buffer[idx] = img_patches.detach().to(torch.float16).cpu()
+        text_buffer[idx] = text_sequence.detach().to(torch.float16).cpu()    
 
         # Save chunk to disk every CHUNK_SIZE items
         if len(img_buffer) >= chunk_size:
