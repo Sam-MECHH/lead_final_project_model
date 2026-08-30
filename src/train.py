@@ -179,10 +179,9 @@ def generate_encoded_tensors(x_set, type="train", chunk_size=2000):
         img_patches = get_image_embeddings(img_path, image_transform, image_model)      
         text_sequence = get_text_embeddings(report, tokenizer, text_model)
 
-        # Cast to float16 and squeeze batch dimension [1, ...] -> [...]
         # Store directly in memory buffers keyed by sample index
-        img_buffer[idx] = img_patches.detach().to(torch.float16).cpu()
-        text_buffer[idx] = text_sequence.detach().to(torch.float16).cpu()    
+        img_buffer[idx] = img_patches.detach().to(torch.float32).cpu()
+        text_buffer[idx] = text_sequence.detach().to(torch.float32).cpu()    
 
         # Save chunk to disk every CHUNK_SIZE items
         if len(img_buffer) >= chunk_size:
@@ -346,7 +345,7 @@ if __name__ == "__main__":
 
     # Load the dataset
     dataset_sample = pd.read_csv("./data/chexpert_plus_dataset_sample.csv", index_col=0)
-    dataset_sample = dataset_sample.loc[0:20000-1, :]
+    dataset_sample = dataset_sample.loc[0:18000-1, :]
     # Split the dataset into train and test sets
     X = dataset_sample.drop(columns=["target"])
     y = dataset_sample["target"]
@@ -367,14 +366,14 @@ if __name__ == "__main__":
 
     # Construct datasets and dataloaders for train and test
     print("Loading encoded tesnors")
-    cross_att_X_train_img_tensor = torch.stack(load_saved_images(chunks_total_train, type="train")).to(torch.float16)
-    cross_att_X_train_txt_tensor = torch.stack(load_saved_texts(chunks_total_train, type="train")).to(torch.float16)
-    cross_att_y_train_tensor = torch.tensor(y_train.to_numpy(), dtype=torch.float16)
+    cross_att_X_train_img_tensor = torch.stack(load_saved_images(chunks_total_train, type="train")).float()
+    cross_att_X_train_txt_tensor = torch.stack(load_saved_texts(chunks_total_train, type="train")).float()
+    cross_att_y_train_tensor = torch.tensor(y_train.to_numpy(), dtype=torch.float32)
     cross_att_train_dataset = TensorDataset(cross_att_X_train_img_tensor, cross_att_X_train_txt_tensor, cross_att_y_train_tensor)
 
-    cross_att_X_test_img_tensor = torch.stack(load_saved_images(chunks_total_test, type="test")).to(torch.float16)
-    cross_att_X_test_txt_tensor = torch.stack(load_saved_texts(chunks_total_test, type="test")).to(torch.float16)
-    cross_att_y_test_tensor = torch.tensor(y_test.to_numpy(), dtype=torch.float16)
+    cross_att_X_test_img_tensor = torch.stack(load_saved_images(chunks_total_test, type="test")).float()
+    cross_att_X_test_txt_tensor = torch.stack(load_saved_texts(chunks_total_test, type="test")).float()
+    cross_att_y_test_tensor = torch.tensor(y_test.to_numpy(), dtype=torch.float32)
     cross_att_test_dataset = TensorDataset(cross_att_X_test_img_tensor, cross_att_X_test_txt_tensor, cross_att_y_test_tensor)
 
     cross_att_train_loader = DataLoader(cross_att_train_dataset, batch_size=64, shuffle=True)
