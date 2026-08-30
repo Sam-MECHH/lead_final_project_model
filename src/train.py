@@ -199,10 +199,11 @@ def generate_encoded_tensors(x_set, type="train", chunk_size=2000):
         torch.save(text_buffer, f"./data/features_chunks/text_sequences_{type}/text_seq_chunk_{chunk_idx}.pt")
         img_buffer.clear()
         text_buffer.clear()
-
+    print(chunk_idx)
     return chunk_idx
 
 def load_saved_images(chunk_idx, type='train'):
+    print(chunk_idx)
     ret_array = []
     # Load image patches: expected shape [128, 14, 14]
     for i in tqdm(range(chunk_idx+1)):
@@ -212,6 +213,7 @@ def load_saved_images(chunk_idx, type='train'):
     return ret_array
     
 def load_saved_texts(chunk_idx, type='train'):
+    print(chunk_idx)
     ret_array = []    
     # Load text sequence: expected shape [512, 768]
     for i in tqdm(range(chunk_idx+1)):
@@ -357,6 +359,8 @@ if __name__ == "__main__":
     # Get images/reports encoded tensors, outputs of BioVil-t
     chunks_total_train = generate_encoded_tensors(X_train, type="train")
     chunks_total_test = generate_encoded_tensors(X_test, type="test")
+    print(chunks_total_train)
+    print(chunks_total_test)
 
     # Construct datasets and dataloaders for train and test
     print("Loading encoded tesnors")
