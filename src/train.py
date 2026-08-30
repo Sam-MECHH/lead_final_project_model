@@ -199,6 +199,9 @@ def generate_encoded_tensors(x_set, type="train", chunk_size=2000):
         torch.save(text_buffer, f"./data/features_chunks/text_sequences_{type}/text_seq_chunk_{chunk_idx}.pt")
         img_buffer.clear()
         text_buffer.clear()
+    else:
+        chunk_idx -=1
+
     print(chunk_idx)
     return chunk_idx
 
@@ -343,7 +346,7 @@ if __name__ == "__main__":
 
     # Load the dataset
     dataset_sample = pd.read_csv("./data/chexpert_plus_dataset_sample.csv", index_col=0)
-    dataset_sample = dataset_sample.loc[0:5000, :]
+    dataset_sample = dataset_sample.loc[0:20000, :]
     # Split the dataset into train and test sets
     X = dataset_sample.drop(columns=["target"])
     y = dataset_sample["target"]
