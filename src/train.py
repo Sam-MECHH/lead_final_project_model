@@ -346,7 +346,7 @@ if __name__ == "__main__":
 
     # Load the dataset
     dataset_sample = pd.read_csv("./data/chexpert_plus_dataset_sample.csv", index_col=0)
-    dataset_sample = dataset_sample.loc[0:18000, :]
+    #dataset_sample = dataset_sample.loc[0:18000, :]
     # Split the dataset into train and test sets
     X = dataset_sample.drop(columns=["target"])
     y = dataset_sample["target"]
@@ -367,14 +367,14 @@ if __name__ == "__main__":
 
     # Construct datasets and dataloaders for train and test
     print("Loading encoded tesnors")
-    cross_att_X_train_img_tensor = torch.stack(load_saved_images(chunks_total_train, type="train")).float()
-    cross_att_X_train_txt_tensor = torch.stack(load_saved_texts(chunks_total_train, type="train")).float()
-    cross_att_y_train_tensor = torch.tensor(y_train.to_numpy(), dtype=torch.float32)
+    cross_att_X_train_img_tensor = torch.stack(load_saved_images(chunks_total_train, type="train")).to(torch.float16)
+    cross_att_X_train_txt_tensor = torch.stack(load_saved_texts(chunks_total_train, type="train")).to(torch.float16)
+    cross_att_y_train_tensor = torch.tensor(y_train.to_numpy(), dtype=torch.float16)
     cross_att_train_dataset = TensorDataset(cross_att_X_train_img_tensor, cross_att_X_train_txt_tensor, cross_att_y_train_tensor)
 
-    cross_att_X_test_img_tensor = torch.stack(load_saved_images(chunks_total_test, type="test")).float()
-    cross_att_X_test_txt_tensor = torch.stack(load_saved_texts(chunks_total_test, type="test")).float()
-    cross_att_y_test_tensor = torch.tensor(y_test.to_numpy(), dtype=torch.float32)
+    cross_att_X_test_img_tensor = torch.stack(load_saved_images(chunks_total_test, type="test")).to(torch.float16)
+    cross_att_X_test_txt_tensor = torch.stack(load_saved_texts(chunks_total_test, type="test")).to(torch.float16)
+    cross_att_y_test_tensor = torch.tensor(y_test.to_numpy(), dtype=torch.float16)
     cross_att_test_dataset = TensorDataset(cross_att_X_test_img_tensor, cross_att_X_test_txt_tensor, cross_att_y_test_tensor)
 
     cross_att_train_loader = DataLoader(cross_att_train_dataset, batch_size=64, shuffle=True)
