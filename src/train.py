@@ -30,7 +30,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger()
 
-
 # CLASSES
 class BiovilDataset(Dataset):
     def __init__(self, df, base_path="./data/CheXpert_Images/"):
@@ -406,7 +405,13 @@ if __name__ == "__main__":
 
     # Load the dataset
     dataset_sample = pd.read_csv("./data/chexpert_plus_dataset_sample.csv", index_col=0)
-    dataset_sample = dataset_sample.loc[0 : 18000 - 1, :]
+    # Get a sample of 18000 pairs with equal proportion between matches and mismatches
+    dataset_sample, _ = train_test_split(
+        dataset_sample, 
+        test_size=0.5, 
+        stratify=dataset_sample['target'], 
+        random_state=42
+    )
     # Split the dataset into train and test sets
     X = dataset_sample.drop(columns=["target"])
     y = dataset_sample["target"]
