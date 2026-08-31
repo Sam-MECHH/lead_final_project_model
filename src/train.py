@@ -2,6 +2,7 @@ import argparse
 import copy
 import logging
 import os
+import sys
 
 import mlflow
 import mlflow.pytorch
@@ -18,17 +19,16 @@ from torch.utils.data import DataLoader, Dataset, TensorDataset
 from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
 
-# Configure logging to both stdout and a log file
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] %(levelname)s: %(message)s",
-    datefmt="%H:%M:%S",
-    handlers=[
-        logging.StreamHandler(),  # Prints to terminal
-        logging.FileHandler("mlops_train_model.log"),  # Saves to a log file
-    ],
-)
-logger = logging.getLogger()
+# Configure logging to stdout and a log file
+# Force handler creation on stdout so Airflow captures it
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+# Avoid adding duplicate handlers if re-run
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 
 # CLASSES
