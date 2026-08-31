@@ -21,11 +21,11 @@ jobs:
 
       - name: Check scripts formatting
         run: |
-          pip install black flake8
-          black --check --diff src/>black_src_report.txt 2>&1
-          black --check --diff tests/>black_tests_report.txt 2>&1
-          flake8 src/>flake8_src_report.txt 2>&1
-          flake8 tests/>flake8_tests_report.txt 2>&1
+          pip install ruff
+          ruff format --check --diff src/>ruff_lint_src_report.txt 2>&1
+          ruff format --check --diff tests/>ruff_lint_tests_report.txt 2>&1
+          ruff check src/>ruff_format_src_report.txt 2>&1
+          ruff check tests/>ruff_format_tests_report.txt 2>&1
 
       - name: Upload Report Artifacts
         if: always() # Uploads reports even if checks fail
@@ -33,10 +33,10 @@ jobs:
         with:
           name: code-quality-reports
           path: |
-            black_src_report.txt
-            black_tests_report.txt
-            flake8_src_report.txt
-            flake8_tests_report.txt
+            ruff_lint_src_report.txt
+            ruff_lint_tests_report.txt
+            ruff_format_src_report.txt
+            ruff_format_tests_report.txt
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
