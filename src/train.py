@@ -169,7 +169,6 @@ def generate_encoded_tensors(x_set, type="train", chunk_size=2000):
     text_buffer = {}
     chunk_idx = 0
 
-    print("Extracting features")
     for img_paths, reports, indices in tqdm(train_loader):
         img_path = img_paths[0]
         report = reports[0]
@@ -201,11 +200,9 @@ def generate_encoded_tensors(x_set, type="train", chunk_size=2000):
     else:
         chunk_idx -=1
 
-    print(chunk_idx)
     return chunk_idx
 
 def load_saved_images(chunk_idx, type='train'):
-    print(chunk_idx)
     ret_array = []
     # Load image patches: expected shape [128, 14, 14]
     for i in tqdm(range(chunk_idx+1)):
@@ -215,7 +212,6 @@ def load_saved_images(chunk_idx, type='train'):
     return ret_array
     
 def load_saved_texts(chunk_idx, type='train'):
-    print(chunk_idx)
     ret_array = []    
     # Load text sequence: expected shape [512, 768]
     for i in tqdm(range(chunk_idx+1)):
@@ -359,10 +355,9 @@ if __name__ == "__main__":
     )
 
     # Get images/reports encoded tensors, outputs of BioVil-t
+    print("Extracting features")
     chunks_total_train = generate_encoded_tensors(X_train, type="train")
     chunks_total_test = generate_encoded_tensors(X_test, type="test")
-    print(chunks_total_train)
-    print(chunks_total_test)
 
     # Construct datasets and dataloaders for train and test
     print("Loading encoded tesnors")
@@ -379,7 +374,7 @@ if __name__ == "__main__":
     cross_att_train_loader = DataLoader(cross_att_train_dataset, batch_size=64, shuffle=True)
     cross_att_val_loader = DataLoader(cross_att_test_dataset, batch_size=64, shuffle=False)
 
-    print("Training start")
+    print("Start of Training")
     # Train the model
     # Set tracking URI to Hugging Face server
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
@@ -405,7 +400,6 @@ if __name__ == "__main__":
         })
 
         # Launch the training block
-        print("Training start")
         history = cross_attention_train_biovil(
             model=cross_att_model, 
             train_loader=cross_att_train_loader, 
@@ -417,4 +411,5 @@ if __name__ == "__main__":
         )
 
         # Log the best model into MLflow models
+        print("Logging the best model into MLflow models")
         mlflow.pytorch.log_model(cross_att_model, name="biovil_t_lead_demo")
