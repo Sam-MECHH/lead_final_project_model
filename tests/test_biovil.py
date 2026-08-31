@@ -1,40 +1,39 @@
-import os
-import copy
 from unittest.mock import MagicMock, patch
 
-import numpy as np
 import pandas as pd
 import pytest
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 from transformers import BatchEncoding
 
 # Import classes and functions from your script file
 from train import (
     BiovilDataset,
-    VisualProjectionLayer,
     CrossAttentionClassifierBiovil,
-    get_text_embeddings,
-    get_image_embeddings,
+    VisualProjectionLayer,
+    cross_attention_train_biovil,
     generate_encoded_tensors,
+    get_image_embeddings,
+    get_text_embeddings,
     load_saved_images,
     load_saved_texts,
-    cross_attention_train_biovil,
 )
-
 
 # ==========================================
 # FIXTURES
 # ==========================================
 
+
 @pytest.fixture
 def sample_df():
     """Provides a dummy pandas DataFrame matching CheXpert structure."""
-    return pd.DataFrame({
-        "path_to_image": ["img1.jpg", "img2.jpg", "img3.jpg"],
-        "report": ["No acute disease.", "Mild cardiomegaly.", "Pleural effusion."]
-    })
+    return pd.DataFrame(
+        {
+            "path_to_image": ["img1.jpg", "img2.jpg", "img3.jpg"],
+            "report": ["No acute disease.", "Mild cardiomegaly.", "Pleural effusion."],
+        }
+    )
 
 
 @pytest.fixture
@@ -47,6 +46,7 @@ def mock_mlflow():
 # ==========================================
 # DATASET TESTS
 # ==========================================
+
 
 class TestBiovilDataset:
     def test_len(self, sample_df):
@@ -66,6 +66,7 @@ class TestBiovilDataset:
 # ==========================================
 # MODEL LAYER TESTS
 # ==========================================
+
 
 class TestVisualProjectionLayer:
     def test_output_shape(self):
@@ -104,6 +105,7 @@ class TestCrossAttentionClassifierBiovil:
 # FEATURE EXTRACTION & EMBEDDING TESTS
 # ==========================================
 
+
 class TestEmbeddingFunctions:
     @patch("train.Image.open")
     def test_get_image_embeddings(self, mock_image_open):
@@ -115,7 +117,7 @@ class TestEmbeddingFunctions:
         # Mock image transform and model
         mock_transform = MagicMock(return_value=torch.randn(1, 448, 448))
         mock_model = MagicMock()
-        
+
         # Setup model return structure
         mock_output = MagicMock()
         mock_output.projected_patch_embeddings = torch.randn(1, 128, 14, 14)
@@ -128,10 +130,12 @@ class TestEmbeddingFunctions:
 
     def test_get_text_embeddings(self):
         mock_tokenizer = MagicMock()
-        mock_tokenizer.return_value = BatchEncoding({
-            "input_ids": torch.randint(0, 1000, (1, 512)),
-            "attention_mask": torch.ones((1, 512))
-        })
+        mock_tokenizer.return_value = BatchEncoding(
+            {
+                "input_ids": torch.randint(0, 1000, (1, 512)),
+                "attention_mask": torch.ones((1, 512)),
+            }
+        )
 
         mock_text_model = MagicMock()
         mock_output = MagicMock()
@@ -146,6 +150,7 @@ class TestEmbeddingFunctions:
 # ==========================================
 # CHUNKING & I/O TESTS
 # ==========================================
+
 
 class TestChunkingAndStorage:
     @patch("train.get_text_embeddings")
@@ -164,7 +169,7 @@ class TestChunkingAndStorage:
         mock_get_txt_emb,
         sample_df,
         tmp_path,
-        monkeypatch
+        monkeypatch,
     ):
         # Redirect working directory to isolated temp path to catch disk dumps
         monkeypatch.chdir(tmp_path)
@@ -174,7 +179,9 @@ class TestChunkingAndStorage:
         mock_get_txt_emb.return_value = torch.randn(1, 512, 768)
 
         # Generate chunk files with small chunk_size=2
-        last_chunk_idx = generate_encoded_tensors(sample_df, type="unittest", chunk_size=2)
+        last_chunk_idx = generate_encoded_tensors(
+            sample_df, type="unittest", chunk_size=2
+        )
 
         # 3 items with chunk size 2 -> 2 chunks total (idx 0 and 1)
         assert last_chunk_idx == 1
@@ -194,6 +201,7 @@ class TestChunkingAndStorage:
 # TRAINING LOOP TESTS
 # ==========================================
 
+
 class TestTrainingLoop:
     def test_cross_attention_train_biovil_runs_and_stops(self, mock_mlflow):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -211,7 +219,7 @@ class TestTrainingLoop:
         model = CrossAttentionClassifierBiovil().to(device)
         criterion = nn.BCEWithLogitsLoss()
         optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min')
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min")
 
         history = cross_attention_train_biovil(
             model=model,
@@ -221,7 +229,7 @@ class TestTrainingLoop:
             optimizer=optimizer,
             scheduler=scheduler,
             epochs=3,
-            patience=2
+            patience=2,
         )
 
         # Verify history output structure

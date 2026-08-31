@@ -1,5 +1,6 @@
 import argparse
 import copy
+import logging
 import os
 
 import mlflow
@@ -16,6 +17,18 @@ from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset, TensorDataset
 from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
+
+# Configure logging to both stdout and a log file
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] %(levelname)s: %(message)s",
+    datefmt="%H:%M:%S",
+    handlers=[
+        logging.StreamHandler(),  # Prints to terminal
+        logging.FileHandler("mlops_train_model.log"),  # Saves to a log file
+    ],
+)
+logger = logging.getLogger()
 
 
 # CLASSES
@@ -148,7 +161,7 @@ def get_image_embeddings(image_path, image_transform, image_model):
 def generate_encoded_tensors(x_set, type="train", chunk_size=2000):
     # Setup device configuration
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    logger.info(f"Using device: {device}")
 
     # Load the comprehensive BioViL-T repo for Text
     model_id = "microsoft/BiomedVLP-BioViL-T"
@@ -274,7 +287,7 @@ def cross_attention_train_biovil(
     """
     # Setup device configuration
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    logger.info(f"Using device: {device}")
 
     # Dictionary to store training & validation loss and accuracy over epochs
     history = {"loss": [], "val_loss": [], "accuracy": [], "val_accuracy": []}
@@ -350,7 +363,7 @@ def cross_attention_train_biovil(
         history["val_accuracy"].append(val_acc)
 
         # Print training progress
-        print(
+        logger.info(
             f"Epoch [{epoch + 1}/{epochs}], Loss: {train_loss:.4f}, Acc: {train_acc:.4f}, "
             f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}, LR: {current_lr:.6f}"
         )
@@ -364,19 +377,19 @@ def cross_attention_train_biovil(
             best_model_weights = copy.deepcopy(model.state_dict())
         else:
             patience_counter += 1
-            print(
+            logger.warning(
                 f"-> Validation loss did not improve. Early Stopping Patience: {patience_counter}/{patience}"
             )
 
         if patience_counter >= patience:
-            print(
+            logger.info(
                 f"\n🛑 Early stopping triggered! Stopping training at epoch {epoch + 1}."
             )
             break
 
     # --- Restore Best Weights ---
     if best_model_weights is not None:
-        print(
+        logger.info(
             f"✅ Restoring best model weights found at Epoch {best_epoch} (Val Loss: {best_val_loss:.4f})"
         )
         model.load_state_dict(best_model_weights)
@@ -407,12 +420,12 @@ if __name__ == "__main__":
     )
 
     # Get images/reports encoded tensors, outputs of BioVil-t
-    print("Extracting features")
+    logger.info("Extracting features")
     chunks_total_train = generate_encoded_tensors(X_train, type="train")
     chunks_total_test = generate_encoded_tensors(X_test, type="test")
 
     # Construct datasets and dataloaders for train and test
-    print("Loading encoded tesnors")
+    logger.info("Loading encoded tesnors")
     cross_att_X_train_img_tensor = torch.stack(
         load_saved_images(chunks_total_train, type="train")
     ).float()
@@ -446,7 +459,7 @@ if __name__ == "__main__":
         cross_att_test_dataset, batch_size=64, shuffle=False
     )
 
-    print("Start of Training")
+    logger.info("Start of Training")
     # Train the model
     # Set tracking URI to Hugging Face server
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
@@ -488,5 +501,5 @@ if __name__ == "__main__":
         )
 
         # Log the best model into MLflow models
-        print("Logging the best model into MLflow models")
+        logger.info("Logging the best model into MLflow models")
         mlflow.pytorch.log_model(cross_att_model, name="biovil_t_lead_demo")
