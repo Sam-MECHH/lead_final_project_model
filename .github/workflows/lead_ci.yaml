@@ -60,7 +60,7 @@ jobs:
           
           docker run --rm \
             $IMAGE_ID:${{ github.sha }} \
-            python -m pytest tests/
+            python -m pytest -vvv tests/
 
       - name: Push to Docker Hub
         # Only push if tests passed AND we are on the main branch
