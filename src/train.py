@@ -12,6 +12,7 @@ from health_multimodal.image.data.transforms import (
     create_chest_xray_transform_for_inference,
 )
 from health_multimodal.image.model.pretrained import get_biovil_t_image_encoder
+from mlflow import MlflowClient
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from torch import nn, optim
@@ -294,6 +295,9 @@ def cross_attention_train_biovil(
 
     # Early stopping trackers
     best_val_loss = float("inf")
+    best_val_acc = 0
+    best_train_loss = 0
+    best_train_acc = 0
     patience_counter = 0
     best_model_weights = None
     best_epoch = 0
@@ -371,6 +375,9 @@ def cross_attention_train_biovil(
         # --- Early Stopping Logic ---
         if val_loss < best_val_loss:
             best_val_loss = val_loss
+            best_val_acc = val_acc
+            best_train_loss = train_loss
+            best_train_acc = train_acc
             patience_counter = 0  # Reset counter since we found a better model
             best_epoch = epoch + 1
             # Cache a deep copy of the optimal weights
@@ -393,8 +400,18 @@ def cross_attention_train_biovil(
             f"✅ Restoring best model weights found at Epoch {best_epoch} (Val Loss: {best_val_loss:.4f})"
         )
         model.load_state_dict(best_model_weights)
+        # Log explicit best metric summary
+        mlflow.log_metrics(
+            {
+                "best_epoch": best_epoch,
+                "best_train_loss": best_train_loss,
+                "best_train_accuracy": best_train_acc,
+                "best_val_loss": best_val_loss,
+                "best_val_accuracy": best_val_acc,
+            }
+        )
 
-    return history  # Return training history
+    return history, best_val_acc  # Return training history
 
 
 if __name__ == "__main__":
@@ -470,6 +487,8 @@ if __name__ == "__main__":
     # Set tracking URI to Hugging Face server
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
     mlflow.set_experiment(args.experiment_name)
+    MIN_ACCURACY_THRESHOLD = 0.75  # Minimum accuracy required to register
+    client = MlflowClient()
     with mlflow.start_run():
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         cross_att_model = CrossAttentionClassifierBiovil().to(device)
@@ -496,7 +515,7 @@ if __name__ == "__main__":
         )
 
         # Launch the training block
-        history = cross_attention_train_biovil(
+        history, validation_accuracy = cross_attention_train_biovil(
             model=cross_att_model,
             train_loader=cross_att_train_loader,
             val_loader=cross_att_val_loader,
@@ -508,4 +527,32 @@ if __name__ == "__main__":
 
         # Log the best model into MLflow models
         logger.info("Logging the best model into MLflow models")
-        mlflow.pytorch.log_model(cross_att_model, name="biovil_t_lead_demo")
+        model_info = mlflow.pytorch.log_model(
+            cross_att_model, name="biovil_t_lead_demo"
+        )
+        logger.info(
+            "Register the model if accuracy is greater or equal than the threshold"
+        )
+        if validation_accuracy >= MIN_ACCURACY_THRESHOLD:
+            registered_version = mlflow.register_model(
+                model_uri=model_info.model_uri, name="biovil_t_lead_demo"
+            )
+        logger.info("Move the model to production if it performs the best")
+        try:
+            model_champion = client().get_model_version_by_alias(
+                name="biovil_t_lead_demo", alias="prod"
+            )
+            # Retrieve the Run using the model version's run_id
+            run_id = model_champion.run_id
+            run = client.get_run(run_id)
+            # Access logged metrics
+            metrics = run.data.metrics
+
+            if validation_accuracy > metrics.get("best_val_accuracy"):
+                client.set_registered_model_alias(
+                    name="biovil_t_lead_demo",
+                    alias="prod",
+                    version=registered_version.version,
+                )
+        except mlflow.exceptions.RestException:
+            print("No model found with alias prod.")
