@@ -6,8 +6,8 @@ hi-ml-multimodal
 
 # Data Science Stack
 torch==2.5.1+cu124
-torchvision
-torchaudio
+torchvision==0.20.1+cu124
+torchaudio==2.5.1+cu124
 scikit-learn
 pandas
 numpy
