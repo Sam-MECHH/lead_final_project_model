@@ -522,7 +522,7 @@ if __name__ == "__main__":
             criterion=criterion,
             optimizer=optimizer,
             scheduler=scheduler,
-            epochs=args.n_epochs
+            epochs=args.n_epochs,
         )
 
         # Log the best model into MLflow models
@@ -554,5 +554,5 @@ if __name__ == "__main__":
                     alias="prod",
                     version=registered_version.version,
                 )
-        except Exception as e:
+        except mlflow.exceptions.RestException as e:
             print(f"No model found with alias prod, {e}")
