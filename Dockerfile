@@ -26,7 +26,7 @@ COPY requirements.txt .
 RUN echo "===== CHECKING REQUIREMENTS =====" && \
     cat requirements.txt && \
     echo "=================================" && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cu124 -r requirements.txt
 
 # 5. Copy Application Code
 COPY . .
