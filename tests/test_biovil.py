@@ -221,7 +221,7 @@ class TestTrainingLoop:
         optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min")
 
-        history = cross_attention_train_biovil(
+        history, best_val_loss = cross_attention_train_biovil(
             model=model,
             train_loader=train_loader,
             val_loader=val_loader,
@@ -236,4 +236,5 @@ class TestTrainingLoop:
         assert "loss" in history
         assert "val_loss" in history
         assert len(history["loss"]) > 0
+        assert isinstance(best_val_loss, float)
         assert mock_mlflow.log_metric.called
