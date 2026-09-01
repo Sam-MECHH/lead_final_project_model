@@ -1,5 +1,5 @@
 # 1. Base Image
-FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
 
 WORKDIR /app
 
@@ -8,10 +8,16 @@ RUN mkdir -p /app/data
 
 # 2. System Dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3-pip \
     libglib2.0-0 \
     libgl1 \
-    && rm -rf /var/lib/apt-get/lists/*
-RUN pip install -y python=3.10
+    && rm -rf /var/lib/apt/lists/*
+
+# Set python3.10 as default 'python' and 'pip'
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1 \
+    && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+
 # 3. Copy Manifest
 COPY requirements.txt .
 

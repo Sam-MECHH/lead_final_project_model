@@ -5,6 +5,9 @@ mlflow==3.5.0
 hi-ml-multimodal
 
 # Data Science Stack
+torch==2.5.1+cu124
+torchvision
+torchaudio
 scikit-learn
 pandas
 numpy
