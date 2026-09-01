@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     libgl1 \
     && rm -rf /var/lib/apt-get/lists/*
-
+RUN conda install -y python=3.10
 # 3. Copy Manifest
 COPY requirements.txt .
 
