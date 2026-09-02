@@ -7,6 +7,7 @@ import sys
 import mlflow
 import mlflow.pytorch
 import pandas as pd
+import requests
 import torch
 from health_multimodal.image.data.transforms import (
     create_chest_xray_transform_for_inference,
@@ -554,5 +555,10 @@ if __name__ == "__main__":
                     alias="prod",
                     version=registered_version.version,
                 )
+                logger.info("Let the API reload the new prduction model")
+                api_url = "https://sammec-demoday-fastapi.hf.space/reload-model"
+                response = requests.post(api_url)
+                logger.info(response)
+
         except mlflow.exceptions.RestException as e:
             print(f"No model found with alias prod, {e}")
