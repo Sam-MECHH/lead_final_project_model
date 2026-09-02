@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
   repository_dispatch:
-    types: [trigger-training]
+    types: [trigger-model-retraining]
   workflow_dispatch:
 
 jobs:
