@@ -539,7 +539,7 @@ if __name__ == "__main__":
             )
         logger.info("Move the model to production if it performs the best")
         try:
-            model_champion = client().get_model_version_by_alias(
+            model_champion = client.get_model_version_by_alias(
                 name="biovil_t_lead_demo", alias="prod"
             )
             # Retrieve the Run using the model version's run_id
