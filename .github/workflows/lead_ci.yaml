@@ -22,10 +22,10 @@ jobs:
       - name: Check scripts formatting
         run: |
           pip install ruff
-          ruff format --check --diff src/>ruff_lint_src_report.txt 2>&1
-          ruff format --check --diff tests/>ruff_lint_tests_report.txt 2>&1
-          ruff check src/>ruff_format_src_report.txt 2>&1
-          ruff check tests/>ruff_format_tests_report.txt 2>&1
+          ruff format --check --diff src/>ruff_format_src_report.txt 2>&1
+          ruff format --check --diff tests/>ruff_format_tests_report.txt 2>&1
+          ruff check src/>ruff_lint_src_report.txt 2>&1
+          ruff check tests/>ruff_lint_tests_report.txt 2>&1
 
       - name: Upload Report Artifacts
         if: always() # Uploads reports even if checks fail
